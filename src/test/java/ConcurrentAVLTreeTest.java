@@ -1,4 +1,5 @@
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
@@ -95,10 +96,10 @@ public class ConcurrentAVLTreeTest {
         assertArrayEquals(value, result.get());
     }
 
-    @Test
+    @RepeatedTest(10)
     void testConcurrency() throws InterruptedException {
         int threadCount = 20;
-        int iterations = 50;
+        int iterations = 512;
 
         for (int i = 0; i < iterations; i++) {
             String key = "key" + i;
@@ -114,7 +115,7 @@ public class ConcurrentAVLTreeTest {
             final int threadId = t;
             executor.submit(() -> {
                 try {
-                    if (threadId < 10) {
+                    if (threadId < threadCount / 2) {
                         for (int i = 0; i < iterations; i++) {
                             String key = "key" + i;
                             String value = "value" + i;
@@ -131,6 +132,7 @@ public class ConcurrentAVLTreeTest {
                         }
                     }
                 } catch (Exception e) {
+                    e.printStackTrace();
                     errors.incrementAndGet();
                 } finally {
                     latch.countDown();
