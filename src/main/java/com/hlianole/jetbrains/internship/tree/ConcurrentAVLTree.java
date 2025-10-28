@@ -19,7 +19,11 @@ public class ConcurrentAVLTree implements Tree {
     }
 
     @Override
-    public Optional<byte[]> get(byte[] key) {
+    public Optional<byte[]> get(byte[] key) throws IllegalArgumentException {
+        if (key == null) {
+            throw new IllegalArgumentException("Key cannot be null");
+        }
+
         rootLock.readLock().lock();
         try {
             Node found = find(root, new Key(key));
@@ -33,7 +37,11 @@ public class ConcurrentAVLTree implements Tree {
     }
 
     @Override
-    public void put(byte[] key, byte[] value) {
+    public void put(byte[] key, byte[] value) throws IllegalArgumentException {
+        if (key == null || value == null) {
+            throw new IllegalArgumentException("Key and value cannot be null");
+        }
+
         rootLock.writeLock().lock();
         try {
             root = insert(root, new Key(key), new Value(value), EmptyNode.getInstance());
