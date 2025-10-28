@@ -11,7 +11,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class ConcurrentAVLTree implements Tree {
 
-    private volatile Node root;
+    protected volatile Node root;
     private final ReentrantReadWriteLock rootLock = new ReentrantReadWriteLock();
 
     public ConcurrentAVLTree() {
@@ -48,9 +48,9 @@ public class ConcurrentAVLTree implements Tree {
         }
 
         int comparison = node.compareKey(key);
-        if (comparison < 0) {
+        if (comparison > 0) {
             return find(node.getLeft(), key);
-        } else if (comparison > 0) {
+        } else if (comparison < 0) {
             return find(node.getRight(), key);
         } else {
             return node;
@@ -63,9 +63,9 @@ public class ConcurrentAVLTree implements Tree {
         }
 
         int comparison = node.compareKey(key);
-        if (comparison < 0) {
+        if (comparison > 0) {
             node.setLeft(insert(node.getLeft(), key, value, node));
-        } else if (comparison > 0) {
+        } else if (comparison < 0) {
             node.setRight(insert(node.getRight(), key, value, node));
         } else {
             return node.setValue(value);
@@ -94,16 +94,16 @@ public class ConcurrentAVLTree implements Tree {
 
     private Node rotateLeft(Node node) {
         Node right = node.getRight();
-        Node left = node.getLeft();
+        Node rightLeft = right.getLeft();
 
         right.setLeft(node);
-        node.setRight(left);
+        node.setRight(rightLeft);
 
         right.setParent(node.getParent());
         node.setParent(right);
 
-        if (left != EmptyNode.getInstance()) {
-            left.setParent(node);
+        if (rightLeft != EmptyNode.getInstance()) {
+            rightLeft.setParent(node);
         }
 
         updateHeight(node);
@@ -114,16 +114,16 @@ public class ConcurrentAVLTree implements Tree {
 
     private Node rotateRight(Node node) {
         Node left = node.getLeft();
-        Node right = node.getRight();
+        Node leftRight = left.getRight();
 
         left.setRight(node);
-        node.setLeft(right);
+        node.setLeft(leftRight);
 
         left.setParent(node.getParent());
         node.setParent(left);
 
-        if (right != EmptyNode.getInstance()) {
-            right.setParent(node);
+        if (leftRight != EmptyNode.getInstance()) {
+            leftRight.setParent(node);
         }
 
         updateHeight(node);
